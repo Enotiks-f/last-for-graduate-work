@@ -1,10 +1,14 @@
 package ru.skypro.homework.dto.comment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 @Schema(description = "Пагинированный список комментариев")
 public class CommentsDto {
 
