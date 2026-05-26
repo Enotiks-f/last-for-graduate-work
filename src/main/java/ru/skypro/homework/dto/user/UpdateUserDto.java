@@ -1,7 +1,11 @@
 package ru.skypro.homework.dto.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class UpdateUserDto {
     @Schema(
             description = "Имя пользователя",
