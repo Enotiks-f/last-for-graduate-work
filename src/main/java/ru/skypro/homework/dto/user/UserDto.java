@@ -2,7 +2,7 @@ package ru.skypro.homework.dto.user;
 
 import ru.skypro.homework.dto.reg.Role;
 
-public class User {
+public class UserDto {
     private Long id;
     private String email;
     private String firstName;

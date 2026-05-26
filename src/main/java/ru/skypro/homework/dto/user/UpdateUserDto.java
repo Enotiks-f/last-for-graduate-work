@@ -2,7 +2,7 @@ package ru.skypro.homework.dto.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public class UpdateUser {
+public class UpdateUserDto {
     @Schema(
             description = "Имя пользователя",
             example = "Иван",
