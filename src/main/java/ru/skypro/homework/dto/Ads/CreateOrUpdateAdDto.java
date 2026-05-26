@@ -1,7 +1,11 @@
 package ru.skypro.homework.dto.Ads;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Schema(description = "Данные для создания или обновления объявления")
 public class CreateOrUpdateAdDto {
 
