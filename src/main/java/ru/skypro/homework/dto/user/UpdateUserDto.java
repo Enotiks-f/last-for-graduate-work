@@ -6,25 +6,15 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@Schema(name = "UpdateUser")
 public class UpdateUserDto {
-    @Schema(
-            description = "Имя пользователя",
-            example = "Иван",
-            minLength = 2,
-            maxLength = 50
-    )
+
+    @Schema(description = "имя пользователя", minLength = 3, maxLength = 10)
     private String firstName;
-    @Schema(
-            description = "Фамилия пользователя",
-            example = "Петров",
-            minLength = 2,
-            maxLength = 50
-    )
+
+    @Schema(description = "фамилия пользователя", minLength = 3, maxLength = 10)
     private String lastName;
-    @Schema(
-            description = "Номер телефона в формате +7XXXXXXXXXX",
-            example = "+79991234567",
-            pattern = "^\\+7\\d{10}$"
-    )
+
+    @Schema(description = "телефон пользователя", pattern = "\\+7\\s?\\(?\\d{3}\\)?\\s?\\d{3}-?\\d{2}-?\\d{2}")
     private String phone;
 }

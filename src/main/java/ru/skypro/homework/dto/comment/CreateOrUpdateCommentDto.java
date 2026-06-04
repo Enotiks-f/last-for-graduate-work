@@ -6,9 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "Данные для создания комментария")
+@Schema(name = "CreateOrUpdateComment", requiredProperties = {"text"})
 public class CreateOrUpdateCommentDto {
 
-    @Schema(description = "Текст комментария", example = "Отличное объявление!", required = true, minLength = 1)
+    @Schema(description = "текст комментария", requiredMode = Schema.RequiredMode.REQUIRED, minLength = 8, maxLength = 64)
     private String text;
 }

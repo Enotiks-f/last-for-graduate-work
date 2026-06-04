@@ -6,15 +6,15 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "Данные для создания или обновления объявления")
+@Schema(name = "CreateOrUpdateAd")
 public class CreateOrUpdateAdDto {
 
-    @Schema(description = "Заголовок объявления", example = "iPhone 15 Pro", minLength = 4, maxLength = 100)
+    @Schema(description = "заголовок объявления", minLength = 4, maxLength = 32)
     private String title;
 
-    @Schema(description = "Цена товара в рублях", example = "99990", minimum = "0")
+    @Schema(description = "цена объявления", minimum = "0", maximum = "10000000")
     private Integer price;
 
-    @Schema(description = "Описание товара", example = "Новый в упаковке, гарантия", maxLength = 1000)
+    @Schema(description = "описание объявления", minLength = 8, maxLength = 64)
     private String description;
 }

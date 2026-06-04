@@ -9,12 +9,12 @@ import ru.skypro.homework.model.User;
 public class UserMapper {
 
     public UserDto toDto(User user) {
-        if(user == null) {
+        if (user == null) {
             return null;
         }
 
         UserDto dto = new UserDto();
-        dto.setId(user.getId());
+        dto.setId(toInt(user.getId()));
         dto.setEmail(user.getEmail());
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
@@ -26,7 +26,7 @@ public class UserMapper {
     }
 
     public UpdateUserDto toUpdateDto(User user) {
-        if(user == null) {
+        if (user == null) {
             return null;
         }
 
@@ -39,12 +39,14 @@ public class UserMapper {
     }
 
     public User toEntity(UserDto dto) {
-        if(dto == null) {
+        if (dto == null) {
             return null;
         }
 
         User user = new User();
-        user.setId(dto.getId());
+        if (dto.getId() != null) {
+            user.setId(dto.getId().longValue());
+        }
         user.setEmail(dto.getEmail());
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
@@ -55,8 +57,8 @@ public class UserMapper {
         return user;
     }
 
-    public void updateEntity(UserDto dto, User user) {
-        if(dto == null || user == null) {
+    public void updateEntity(UpdateUserDto dto, User user) {
+        if (dto == null || user == null) {
             return;
         }
         user.setFirstName(dto.getFirstName());
@@ -64,5 +66,7 @@ public class UserMapper {
         user.setPhone(dto.getPhone());
     }
 
-
+    private Integer toInt(Long value) {
+        return value == null ? null : value.intValue();
+    }
 }

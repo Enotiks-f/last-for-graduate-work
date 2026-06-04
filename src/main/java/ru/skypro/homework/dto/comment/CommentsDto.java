@@ -9,13 +9,13 @@ import java.util.List;
 
 @Getter
 @Setter
-@Schema(description = "Пагинированный список комментариев")
+@Schema(name = "Comments")
 public class CommentsDto {
 
-    @Schema(description = "Общее количество комментариев", example = "15")
+    @Schema(description = "общее количество комментариев")
     private Integer count;
 
-    @Schema(description = "Массив комментариев")
+    @Schema(description = "список комментариев")
     private List<CommentDto> results = new ArrayList<>();
 
     public CommentsDto() {

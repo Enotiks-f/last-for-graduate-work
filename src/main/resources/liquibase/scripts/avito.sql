@@ -11,6 +11,9 @@ create table users (
     role varchar(20) not null
 );
 
+-- changeset skypro:4
+alter table users add column if not exists password varchar(255);
+
 -- changeset neo:2
 create table ads(
   id bigserial primary key,

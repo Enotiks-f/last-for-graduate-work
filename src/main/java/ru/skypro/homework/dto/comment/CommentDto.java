@@ -6,24 +6,24 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "Информация о комментарии")
+@Schema(name = "Comment")
 public class CommentDto {
 
-    @Schema(description = "ID автора комментария", example = "5")
-    private Long author;
+    @Schema(description = "id автора комментария")
+    private Integer author;
 
-    @Schema(description = "URL аватара автора", example = "/images/avatars/5.jpg")
+    @Schema(description = "ссылка на аватар автора комментария")
     private String authorImage;
 
-    @Schema(description = "Имя автора", example = "Анна Смирнова")
+    @Schema(description = "имя создателя комментария")
     private String authorFirstName;
 
-    @Schema(description = "Дата создания комментария (в миллисекундах)", example = "1698765432000")
+    @Schema(description = "дата и время создания комментария в миллисекундах с 00:00:00 01.01.1970")
     private Long createdAt;
 
-    @Schema(description = "ID комментария", example = "42")
-    private Long pk;
+    @Schema(description = "id комментария")
+    private Integer pk;
 
-    @Schema(description = "Текст комментария", example = "Отличное объявление!", maxLength = 500)
+    @Schema(description = "текст комментария")
     private String text;
 }

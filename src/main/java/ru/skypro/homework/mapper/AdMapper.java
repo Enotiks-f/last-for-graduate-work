@@ -1,7 +1,8 @@
 package ru.skypro.homework.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.skypro.homework.dto.Ads.AdShortDto;
+import ru.skypro.homework.dto.Ads.AdDto;
+import ru.skypro.homework.dto.Ads.AdsDto;
 import ru.skypro.homework.dto.Ads.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.Ads.ExtendedAdDto;
 import ru.skypro.homework.model.Ad;
@@ -10,22 +11,22 @@ import ru.skypro.homework.model.User;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Component
 public class AdMapper {
 
-    public AdShortDto toShortDto(Ad ad) {
+    public AdDto toDto(Ad ad) {
         if (ad == null) {
             return null;
         }
 
-        AdShortDto dto = new AdShortDto();
-        dto.setPk(ad.getId());
+        AdDto dto = new AdDto();
+        dto.setPk(toInt(ad.getId()));
         dto.setTitle(ad.getTitle());
         dto.setPrice(ad.getPrice());
+        dto.setImage(ad.getImage());
 
         if (ad.getAuthor() != null) {
-            dto.setAuthor(ad.getAuthor().getId());
+            dto.setAuthor(toInt(ad.getAuthor().getId()));
         }
 
         return dto;
@@ -37,14 +38,14 @@ public class AdMapper {
         }
 
         ExtendedAdDto dto = new ExtendedAdDto();
-        dto.setPk(ad.getId());
+        dto.setPk(toInt(ad.getId()));
         dto.setTitle(ad.getTitle());
         dto.setDescription(ad.getDescription());
         dto.setPrice(ad.getPrice());
         dto.setImage(ad.getImage());
 
-        User author = new User();
-        if (ad.getAuthor() != null) {
+        User author = ad.getAuthor();
+        if (author != null) {
             dto.setAuthorFirstName(author.getFirstName());
             dto.setAuthorLastName(author.getLastName());
             dto.setEmail(author.getEmail());
@@ -62,31 +63,40 @@ public class AdMapper {
         Ad ad = new Ad();
         ad.setTitle(adDto.getTitle());
         ad.setDescription(adDto.getDescription());
-        ad.setDescription(adDto.getDescription());
+        ad.setPrice(adDto.getPrice());
 
         return ad;
     }
 
-//    for put/putch
-    public void toEntity(CreateOrUpdateAdDto adDto, User user) {
-        if (adDto == null) {
+    public void updateEntity(CreateOrUpdateAdDto adDto, Ad ad) {
+        if (adDto == null || ad == null) {
             return;
         }
 
-        Ad ad = new Ad();
         ad.setTitle(adDto.getTitle());
         ad.setDescription(adDto.getDescription());
-        ad.setDescription(adDto.getDescription());
-
+        ad.setPrice(adDto.getPrice());
     }
 
-    public List<AdShortDto> toShortDtoList(List<Ad> ads) {
+    public List<AdDto> toDtoList(List<Ad> ads) {
         if (ads == null) {
             return null;
         }
         return ads.stream()
-                .map(this::toShortDto)
+                .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
+    public AdsDto toAdsDto(List<Ad> ads) {
+        List<AdDto> adDtos = toDtoList(ads);
+        int count = adDtos != null ? adDtos.size() : 0;
+        AdsDto adsDto = new AdsDto();
+        adsDto.setCount(count);
+        adsDto.setResults(adDtos != null ? adDtos : List.of());
+        return adsDto;
+    }
+
+    private Integer toInt(Long value) {
+        return value == null ? null : value.intValue();
+    }
 }

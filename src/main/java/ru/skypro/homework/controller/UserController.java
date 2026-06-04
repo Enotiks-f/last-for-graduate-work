@@ -7,169 +7,83 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.catalina.User;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.user.NewPassword;
-import ru.skypro.homework.dto.user.UpdateUser;
+import ru.skypro.homework.dto.user.NewPasswordDto;
+import ru.skypro.homework.dto.user.UpdateUserDto;
+import ru.skypro.homework.dto.user.UserDto;
+import ru.skypro.homework.service.UserService;
 
 @RestController
 @RequestMapping("/users")
-@Tag(name = "Пользователи", description = "API для управления профилем пользователя")
+@RequiredArgsConstructor
+@Tag(name = "Пользователи")
 public class UserController {
 
-    // ==================== 1. СМЕНА ПАРОЛЯ ====================
+    private final UserService userService;
 
     @PostMapping("/set_password")
-    @Operation(
-            summary = "Обновление пароля",
-            description = "Позволяет авторизованному пользователю сменить пароль, " +
-                    "предоставив текущий пароль и новый пароль"
-    )
+    @Operation(summary = "Обновление пароля", operationId = "setPassword")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "OK. Пароль успешно изменён"
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized. Пользователь не авторизован",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden. Указан неверный текущий пароль",
-                    content = @Content
-            )
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     })
-    public ResponseEntity<?> setPassword(
-            @Parameter(
-                    description = "Объект с текущим и новым паролем",
-                    required = true,
-                    schema = @Schema(implementation = NewPassword.class)
-            )
-            @RequestBody NewPassword password
+    public ResponseEntity<Void> setPassword(
+            @RequestBody NewPasswordDto password,
+            Authentication authentication
     ) {
-        // Скелет: заглушка
+        userService.changePassword(authentication.getName(), password);
         return ResponseEntity.ok().build();
     }
-
-    // ==================== 2. ПОЛУЧЕНИЕ ДАННЫХ О СЕБЕ ====================
 
     @GetMapping("/me")
-    @Operation(
-            summary = "Получение информации об авторизованном пользователе",
-            description = "Возвращает данные текущего авторизованного пользователя: " +
-                    "id, email, имя, фамилию, телефон и ссылку на аватар"
-    )
+    @Operation(summary = "Получение информации об авторизованном пользователе", operationId = "getUser")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "OK. Данные пользователя успешно получены",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = User.class)
-                    )
+                    description = "OK",
+                    content = @Content(schema = @Schema(implementation = UserDto.class))
             ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized. Пользователь не авторизован",
-                    content = @Content
-            )
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
     })
-    public ResponseEntity<User> getMe() {
-        // Скелет: возвращаем пустой объект
-        return ResponseEntity.ok().build();
+    public ResponseEntity<UserDto> getUser(Authentication authentication) {
+        return ResponseEntity.ok(userService.getUser(authentication.getName()));
     }
-
-    // ==================== 3. ОБНОВЛЕНИЕ ДАННЫХ О СЕБЕ ====================
 
     @PatchMapping("/me")
-    @Operation(
-            summary = "Обновление информации об авторизованном пользователе",
-            description = "Обновляет имя, фамилию и телефон текущего пользователя. " +
-                    "Email, пароль и аватар обновляются отдельными эндпоинтами."
-    )
+    @Operation(summary = "Обновление информации об авторизованном пользователе", operationId = "updateUser")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "OK. Данные успешно обновлены",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = UpdateUser.class)
-                    )
+                    description = "OK",
+                    content = @Content(schema = @Schema(implementation = UpdateUserDto.class))
             ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized. Пользователь не авторизован",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Bad Request. Ошибка валидации данных",
-                    content = @Content
-            )
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
     })
-    public ResponseEntity<UpdateUser> updateMe(
-            @Parameter(
-                    description = "Объект с обновляемыми полями (имя, фамилия, телефон)",
-                    required = true,
-                    schema = @Schema(implementation = UpdateUser.class)
-            )
-            @RequestBody UpdateUser user
+    public ResponseEntity<UpdateUserDto> updateUser(
+            @RequestBody UpdateUserDto user,
+            Authentication authentication
     ) {
-        // Скелет: возвращаем то, что пришло
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userService.updateUser(authentication.getName(), user));
     }
 
-    // ==================== 4. ОБНОВЛЕНИЕ АВАТАРА ====================
-
-    @PatchMapping(value = "/me/image", consumes = {"multipart/form-data"})
-    @Operation(
-            summary = "Обновление аватара пользователя",
-            description = "Загружает новый аватар для текущего пользователя. " +
-                    "Поддерживаются форматы: JPEG, PNG, GIF. " +
-                    "Максимальный размер файла: 10MB."
-    )
+    @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Обновление аватара авторизованного пользователя", operationId = "updateUserImage")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "OK. Аватар успешно обновлён"
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Bad Request. Файл не загружен или имеет неверный формат",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Unauthorized. Пользователь не авторизован",
-                    content = @Content
-            )
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
     })
-    public ResponseEntity<?> updateMeImage(
-            @Parameter(
-                    description = "Файл изображения (JPEG, PNG, GIF)",
-                    required = true,
-                    schema = @Schema(
-                            type = "string",
-                            format = "binary",
-                            description = "Изображение для аватара"
-                    )
-            )
-            @RequestParam("image") MultipartFile image
+    public ResponseEntity<Void> updateUserImage(
+            @Parameter(description = "Файл изображения", required = true)
+            @RequestPart("image") MultipartFile image,
+            Authentication authentication
     ) {
-        // Скелет с минимальной проверкой
-        if (image == null || image.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Можно добавить логирование для отладки
-        System.out.println("Получен файл: " + image.getOriginalFilename());
-        System.out.println("Размер: " + image.getSize() + " байт");
-        System.out.println("Тип: " + image.getContentType());
-
+        userService.updateUserImage(authentication.getName(), image);
         return ResponseEntity.ok().build();
     }
 }

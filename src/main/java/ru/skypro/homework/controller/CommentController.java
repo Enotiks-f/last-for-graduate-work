@@ -7,120 +7,103 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.dto.comment.CommentDto;
 import ru.skypro.homework.dto.comment.CommentsDto;
 import ru.skypro.homework.dto.comment.CreateOrUpdateCommentDto;
+import ru.skypro.homework.service.CommentService;
 
 @RestController
-@RequestMapping("/ads/{adId}/comments")
-@Tag(name = "Комментарии", description = "API для работы с комментариями к объявлениям")
+@RequiredArgsConstructor
+@Tag(name = "Комментарии")
 public class CommentController {
 
-    // ==================== 1. ПОЛУЧЕНИЕ КОММЕНТАРИЕВ ====================
+    private final CommentService commentService;
 
-    @GetMapping
-    @Operation(
-            summary = "Получение комментариев объявления",
-            description = "Возвращает список всех комментариев к указанному объявлению"
-    )
+    @GetMapping("/ads/{id}/comments")
+    @Operation(summary = "Получение комментариев объявления", operationId = "getComments")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "OK. Список комментариев получен",
+                    description = "OK",
                     content = @Content(schema = @Schema(implementation = CommentsDto.class))
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Not found. Объявление не найдено", content = @Content)
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
     })
     public ResponseEntity<CommentsDto> getComments(
-            @Parameter(description = "ID объявления", example = "123", required = true)
-            @PathVariable Long adId
+            @Parameter(description = "ID объявления", required = true)
+            @PathVariable("id") Integer id
     ) {
-        // Скелет: возвращаем пустой список
-        return ResponseEntity.ok(new CommentsDto());
+        return ResponseEntity.ok(commentService.getComments(id));
     }
 
-    // ==================== 2. ДОБАВЛЕНИЕ КОММЕНТАРИЯ ====================
-
-    @PostMapping
-    @Operation(
-            summary = "Добавление комментария к объявлению",
-            description = "Добавляет новый комментарий к указанному объявлению"
-    )
+    @PostMapping("/ads/{id}/comments")
+    @Operation(summary = "Добавление комментария к объявлению", operationId = "addComment")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "OK. Комментарий добавлен",
+                    description = "OK",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Not found. Объявление не найдено", content = @Content)
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
     })
     public ResponseEntity<CommentDto> addComment(
-            @Parameter(description = "ID объявления", example = "123", required = true)
-            @PathVariable Long adId,
-
+            @Parameter(description = "ID объявления", required = true)
+            @PathVariable("id") Integer id,
             @Parameter(description = "Текст комментария", required = true)
-            @RequestBody CreateOrUpdateCommentDto createComment
+            @RequestBody CreateOrUpdateCommentDto createComment,
+            Authentication authentication
     ) {
-        // Скелет: возвращаем пустой объект
-        return ResponseEntity.ok(new CommentDto());
+        return ResponseEntity.ok(
+                commentService.addComment(authentication.getName(), id, createComment));
     }
 
-    // ==================== 3. УДАЛЕНИЕ КОММЕНТАРИЯ (НОВЫЙ) ====================
-
-    @DeleteMapping("/{commentId}")
-    @Operation(
-            summary = "Удаление комментария",
-            description = "Удаляет комментарий по ID. Доступно только автору комментария или администратору"
-    )
+    @DeleteMapping("/ads/{adId}/comments/{commentId}")
+    @Operation(summary = "Удаление комментария", operationId = "deleteComment")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK. Комментарий удалён"),
+            @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Forbidden. Нет прав на удаление", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Not found. Комментарий или объявление не найдены", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
     })
     public ResponseEntity<Void> deleteComment(
-            @Parameter(description = "ID объявления", example = "123", required = true)
-            @PathVariable Long adId,
-
-            @Parameter(description = "ID комментария", example = "45", required = true)
-            @PathVariable Long commentId
+            @Parameter(description = "ID объявления", required = true)
+            @PathVariable Integer adId,
+            @Parameter(description = "ID комментария", required = true)
+            @PathVariable Integer commentId,
+            Authentication authentication
     ) {
-        // Скелет: возвращаем 200 OK
+        commentService.deleteComment(authentication.getName(), adId, commentId);
         return ResponseEntity.ok().build();
     }
 
-    // ==================== 4. ОБНОВЛЕНИЕ КОММЕНТАРИЯ (НОВЫЙ) ====================
-
-    @PatchMapping("/{commentId}")
-    @Operation(
-            summary = "Обновление комментария",
-            description = "Обновляет текст комментария. Доступно только автору комментария"
-    )
+    @PatchMapping("/ads/{adId}/comments/{commentId}")
+    @Operation(summary = "Обновление комментария", operationId = "updateComment")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "OK. Комментарий обновлён",
+                    description = "OK",
                     content = @Content(schema = @Schema(implementation = CommentDto.class))
             ),
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Forbidden. Нет прав на редактирование", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Not found. Комментарий или объявление не найдены", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
     })
     public ResponseEntity<CommentDto> updateComment(
-            @Parameter(description = "ID объявления", example = "123", required = true)
-            @PathVariable Long adId,
-
-            @Parameter(description = "ID комментария", example = "45", required = true)
-            @PathVariable Long commentId,
-
+            @Parameter(description = "ID объявления", required = true)
+            @PathVariable Integer adId,
+            @Parameter(description = "ID комментария", required = true)
+            @PathVariable Integer commentId,
             @Parameter(description = "Обновлённый текст комментария", required = true)
-            @RequestBody CreateOrUpdateCommentDto updateComment
+            @RequestBody CreateOrUpdateCommentDto updateComment,
+            Authentication authentication
     ) {
-        // Скелет: возвращаем пустой объект
-        return ResponseEntity.ok(new CommentDto());
+        return ResponseEntity.ok(
+                commentService.updateComment(authentication.getName(), adId, commentId, updateComment));
     }
 }

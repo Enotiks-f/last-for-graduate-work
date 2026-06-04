@@ -1,6 +1,5 @@
 package ru.skypro.homework.model;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +19,10 @@ public class Ad {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 32, nullable = false)
     private String title;
 
-    @Column(length = 1000)
+    @Column(length = 64)
     private String description;
 
     @Column(nullable = false)
@@ -32,9 +31,7 @@ public class Ad {
     @Column
     private String image;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
-
-
 }

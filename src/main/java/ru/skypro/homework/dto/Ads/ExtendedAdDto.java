@@ -6,33 +6,33 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "Полная информация об объявлении")
+@Schema(name = "ExtendedAd")
 public class ExtendedAdDto {
 
-    @Schema(description = "ID объявления", example = "123")
-    private Long pk;
+    @Schema(description = "id объявления")
+    private Integer pk;
 
-    @Schema(description = "Имя автора объявления", example = "Иван Петров")
+    @Schema(description = "имя автора объявления")
     private String authorFirstName;
 
-    @Schema(description = "Фамилия автора объявления", example = "Иванов")
+    @Schema(description = "фамилия автора объявления")
     private String authorLastName;
 
-    @Schema(description = "Описание объявления", example = "Ноутбук в отличном состоянии, 16GB RAM, 512GB SSD")
+    @Schema(description = "описание объявления")
     private String description;
 
-    @Schema(description = "Email автора", example = "ivan@example.com")
+    @Schema(description = "логин автора объявления")
     private String email;
 
-    @Schema(description = "URL изображения", example = "/images/ads/123.jpg")
+    @Schema(description = "ссылка на картинку объявления")
     private String image;
 
-    @Schema(description = "Телефон автора", example = "+79991234567")
+    @Schema(description = "телефон автора объявления")
     private String phone;
 
-    @Schema(description = "Цена объявления", example = "50000")
+    @Schema(description = "цена объявления")
     private Integer price;
 
-    @Schema(description = "Заголовок объявления", example = "MacBook Pro 14\"")
+    @Schema(description = "заголовок объявления")
     private String title;
 }
